@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.wecoding.mybatis.mapper.BatchDemoMapper">
+
+    <resultMap id="BaseResultMap" type="top.wecoding.mybatis.domain.BatchDemo">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="batchName" column="batch_name" jdbcType="VARCHAR"/>
+            <result property="batchValue" column="batch_value" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,batch_name,batch_value
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from batch_demo
+        where  id = #{id,jdbcType=INTEGER} 
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from batch_demo
+        where  id = #{id,jdbcType=INTEGER} 
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="top.wecoding.mybatis.domain.BatchDemo" useGeneratedKeys="true">
+        insert into batch_demo
+        ( id,batch_name,batch_value
+        )
+        values (#{id,jdbcType=INTEGER},#{batchName,jdbcType=VARCHAR},#{batchValue,jdbcType=VARCHAR}
+        )
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="top.wecoding.mybatis.domain.BatchDemo" useGeneratedKeys="true">
+        insert into batch_demo
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="batchName != null">batch_name,</if>
+                <if test="batchValue != null">batch_value,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id,jdbcType=INTEGER},</if>
+                <if test="batchName != null">#{batchName,jdbcType=VARCHAR},</if>
+                <if test="batchValue != null">#{batchValue,jdbcType=VARCHAR},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="top.wecoding.mybatis.domain.BatchDemo">
+        update batch_demo
+        <set>
+                <if test="batchName != null">
+                    batch_name = #{batchName,jdbcType=VARCHAR},
+                </if>
+                <if test="batchValue != null">
+                    batch_value = #{batchValue,jdbcType=VARCHAR},
+                </if>
+        </set>
+        where   id = #{id,jdbcType=INTEGER} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="top.wecoding.mybatis.domain.BatchDemo">
+        update batch_demo
+        set 
+            batch_name =  #{batchName,jdbcType=VARCHAR},
+            batch_value =  #{batchValue,jdbcType=VARCHAR}
+        where   id = #{id,jdbcType=INTEGER} 
+    </update>
+</mapper>
