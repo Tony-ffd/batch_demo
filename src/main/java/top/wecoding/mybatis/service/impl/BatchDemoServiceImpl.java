@@ -1,10 +1,10 @@
 package top.wecoding.mybatis.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import top.wecoding.mybatis.domain.BatchDemo;
-import top.wecoding.mybatis.service.BatchDemoService;
-import top.wecoding.mybatis.mapper.BatchDemoMapper;
 import org.springframework.stereotype.Service;
+import top.wecoding.mybatis.domain.BatchDemo;
+import top.wecoding.mybatis.mapper.BatchDemoMapper;
+import top.wecoding.mybatis.service.BatchDemoService;
 
 /**
 * @author ffd

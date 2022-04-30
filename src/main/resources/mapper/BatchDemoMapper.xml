@@ -14,54 +14,58 @@
         id,batch_name,batch_value
     </sql>
 
-    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List" />
-        from batch_demo
-        where  id = #{id,jdbcType=INTEGER} 
-    </select>
+    <update id="createTempTable">
+        create temporary table batch_demo_temp
+        (
+          id          int         not null comment 'id'
+              primary key,
+          batch_name  varchar(32) null,
+          batch_value varchar(32) null
+        ) engine = MEMORY
+          comment '批量处理测试表暂存表'
+    </update>
 
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
-        delete from batch_demo
-        where  id = #{id,jdbcType=INTEGER} 
-    </delete>
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="top.wecoding.mybatis.domain.BatchDemo" useGeneratedKeys="true">
+    <insert id="insertTempTableForMybatis" keyColumn="id" keyProperty="id" parameterType="top.wecoding.mybatis.domain.BatchDemo" useGeneratedKeys="true">
+        insert into batch_demo_temp
+        ( id,batch_name,batch_value
+        )
+        values (#{id,jdbcType=INTEGER},#{batchName,jdbcType=VARCHAR},#{batchValue,jdbcType=VARCHAR}
+               )
+    </insert>
+
+    <insert id="insertByTempTableForMybatis" keyColumn="id" keyProperty="id" parameterType="top.wecoding.mybatis.domain.BatchDemo" useGeneratedKeys="true">
+        insert into batch_demo select * from batch_demo_temp
+    </insert>
+
+    <insert id="insertForMybatis" keyColumn="id" keyProperty="id" parameterType="top.wecoding.mybatis.domain.BatchDemo" useGeneratedKeys="true">
         insert into batch_demo
         ( id,batch_name,batch_value
         )
         values (#{id,jdbcType=INTEGER},#{batchName,jdbcType=VARCHAR},#{batchValue,jdbcType=VARCHAR}
         )
     </insert>
-    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="top.wecoding.mybatis.domain.BatchDemo" useGeneratedKeys="true">
-        insert into batch_demo
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-                <if test="id != null">id,</if>
-                <if test="batchName != null">batch_name,</if>
-                <if test="batchValue != null">batch_value,</if>
-        </trim>
-        <trim prefix="values (" suffix=")" suffixOverrides=",">
-                <if test="id != null">#{id,jdbcType=INTEGER},</if>
-                <if test="batchName != null">#{batchName,jdbcType=VARCHAR},</if>
-                <if test="batchValue != null">#{batchValue,jdbcType=VARCHAR},</if>
-        </trim>
+
+    <insert id="insertListForMybatis" keyColumn="id" keyProperty="id" parameterType="list" useGeneratedKeys="true">
+        insert into batch_demo values
+        <foreach collection="batchDemoList" index="index" item="batchDemo" separator=",">
+            ( #{batchDemo.id,jdbcType=INTEGER},
+             #{batchDemo.batchName,jdbcType=VARCHAR},
+             #{batchDemo.batchValue,jdbcType=VARCHAR}
+             )
+        </foreach>
     </insert>
-    <update id="updateByPrimaryKeySelective" parameterType="top.wecoding.mybatis.domain.BatchDemo">
-        update batch_demo
-        <set>
-                <if test="batchName != null">
-                    batch_name = #{batchName,jdbcType=VARCHAR},
-                </if>
-                <if test="batchValue != null">
-                    batch_value = #{batchValue,jdbcType=VARCHAR},
-                </if>
-        </set>
-        where   id = #{id,jdbcType=INTEGER} 
-    </update>
-    <update id="updateByPrimaryKey" parameterType="top.wecoding.mybatis.domain.BatchDemo">
-        update batch_demo
-        set 
-            batch_name =  #{batchName,jdbcType=VARCHAR},
-            batch_value =  #{batchValue,jdbcType=VARCHAR}
-        where   id = #{id,jdbcType=INTEGER} 
-    </update>
+
+    <insert id="insertOrUpdateListForMybatis" keyColumn="id" keyProperty="id" parameterType="list" useGeneratedKeys="true">
+        insert into batch_demo values
+        <foreach collection="batchDemoList" index="index" item="batchDemo" separator=",">
+            ( #{batchDemo.id,jdbcType=INTEGER},
+            #{batchDemo.batchName,jdbcType=VARCHAR},
+            #{batchDemo.batchValue,jdbcType=VARCHAR}
+            )
+        </foreach>
+        on duplicate key update
+        batch_name = values(batch_name),
+        batch_value = values(batch_value)
+    </insert>
+
 </mapper>

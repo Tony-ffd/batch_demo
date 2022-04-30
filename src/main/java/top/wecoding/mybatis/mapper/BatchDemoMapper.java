@@ -1,7 +1,10 @@
 package top.wecoding.mybatis.mapper;
 
+import org.apache.ibatis.annotations.Param;
 import top.wecoding.mybatis.domain.BatchDemo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
 * @author ffd
@@ -10,17 +13,43 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @Entity top.wecoding.mybatis.domain.BatchDemo
 */
 public interface BatchDemoMapper extends BaseMapper<BatchDemo> {
-    int deleteByPrimaryKey(Long id);
+    /**
+     * 创建临时表
+     */
+    void createTempTable();
 
-    int insert(BatchDemo record);
+    /**
+     * 给临时表中添加数据
+     * @param batchDemo
+     */
+    void insertTempTableForMybatis(BatchDemo batchDemo);
 
-    int insertSelective(BatchDemo record);
+    /**
+     * 将临时表中的数据转入正式表
+     */
+    void insertByTempTableForMybatis();
 
-    BatchDemo selectByPrimaryKey(Long id);
+    /**
+     * mybatis正常插入数据
+     * @param batchDemo
+     * @return int
+     */
+    int insertForMybatis(BatchDemo batchDemo);
 
-    int updateByPrimaryKeySelective(BatchDemo record);
+    /**
+     * mybatis插入数据 insert into ** values(),...,()
+     * @param batchDemoList
+     * @return int[]
+     */
+    void insertListForMybatis(@Param("batchDemoList") List<BatchDemo> batchDemoList);
 
-    int updateByPrimaryKey(BatchDemo record);
+    /**
+     * mybatis插入数据 insert into ** values(),...,()
+     * @param batchDemoList
+     * @return int[]
+     */
+    void insertOrUpdateListForMybatis(@Param("batchDemoList") List<BatchDemo> batchDemoList);
+
 }
 
 
