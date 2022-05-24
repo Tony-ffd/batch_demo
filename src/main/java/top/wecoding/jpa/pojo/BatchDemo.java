@@ -1,17 +1,17 @@
-package top.wecoding.jpa.entity;
+package top.wecoding.jpa.pojo;
 
-import java.io.Serializable;
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import lombok.Data;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import java.io.Serializable;
 
 /**
  * 批量处理测试表
  * @TableName batch_demo
  */
-@Table(name="batch_demo")
+@Entity(name="batch_demo")
 @Data
 public class BatchDemo implements Serializable {
     /**

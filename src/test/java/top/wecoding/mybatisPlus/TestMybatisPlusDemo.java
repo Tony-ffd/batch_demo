@@ -1,12 +1,10 @@
 package top.wecoding.mybatisPlus;
 
-import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import top.wecoding.mybatis.domain.BatchDemo;
-import top.wecoding.mybatis.mapper.BatchDemoMapper;
 import top.wecoding.mybatis.service.BatchDemoService;
 
 import javax.annotation.Resource;

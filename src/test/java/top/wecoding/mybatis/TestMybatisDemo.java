@@ -68,13 +68,16 @@ public class TestMybatisDemo {
     void testInsert2(){
         BatchDemo batchDemo = new BatchDemo();
         long starTime = System.currentTimeMillis();
+        //创建暂存表
         batchDemoMapper.createTempTable();
         for (int i = 0; i < 10000; i++) {
             batchDemo.setId(i);
             batchDemo.setBatchName("name"+i);
             batchDemo.setBatchValue("value"+i);
+            //给暂存表添加数据
             batchDemoMapper.insertTempTableForMybatis(batchDemo);
         }
+        //将暂存表数据导入正式表
         batchDemoMapper.insertByTempTableForMybatis();
         System.out.println("耗时：" + String.valueOf(System.currentTimeMillis() - starTime));
     }
