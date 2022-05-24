@@ -609,7 +609,7 @@ void testInsert3(){
 
 ## Mybatis Plus
 
-代码位置: 
+代码位置: https://gitee.com/tonyffd/batch_demo/blob/master/src/test/java/top/wecoding/mybatisPlus/TestMybatisPlusDemo.java
 
 >  作为mybatis的拓展，拥有mybatis的所有功能，直接使用Mybatis的用法完全OK，当然也一些自己的api可以使用，该测试只使用了`ServiceImpl`中的方法，且有些方法于Mybatis一致，省去不写。
 
@@ -636,7 +636,7 @@ void testInsert3(){
 
 ## Spring Data Jpa
 
-代码位置: 
+代码位置: https://gitee.com/tonyffd/batch_demo/blob/master/src/test/java/top/wecoding/jpa/TestJpaDemo.java
 
 > Spring Data Jpa中包含`hibernate`，`hibernate`也是jpa的一种实现，故直接测试Jpa，不再测试`hibernate`
 
@@ -688,6 +688,8 @@ void testInsert2() {
 
 ### 事务统一提交  耗时：12363
 
+- 使用`JpaRepository`中的`saveAll`方法  耗时：12363
+
 ~~~java
 @Test
 void testInsert1(){
@@ -705,13 +707,141 @@ void testInsert1(){
 }
 ~~~
 
-### 多线程持久化
+- 强制性执行`insert`语句  耗时：6549
 
-### 内存暂存表优化
+~~~java
+@Transactional(rollbackFor = Exception.class)
+public void insert3() {
+    long starTime = System.currentTimeMillis();
+    for (int i = 0; i < 10000; i++) {
+        BatchDemo batchDemo = new BatchDemo();
+        batchDemo.setId(i);
+        batchDemo.setBatchName("name" + i);
+        batchDemo.setBatchValue("value" + i);
+        batchDemoRepository.saveBatchDemo(batchDemo.getId(), batchDemo.getBatchName(), batchDemo.getBatchValue());
+    }
+    batchDemoRepository.flush();
+    System.out.println("耗时：" + String.valueOf(System.currentTimeMillis() - starTime));
+}
+~~~
 
-### 使用批处理模式
+- 使用`entityManager.persist`直接插入  耗时: 6251
 
-### 数据库批处理语句
+~~~java
+@Transactional(rollbackFor = Exception.class)
+public void insert4() {
+    long starTime = System.currentTimeMillis();
+    for (int i = 0; i < 10000; i++) {
+        BatchDemo batchDemo = new BatchDemo();
+        batchDemo.setId(i);
+        batchDemo.setBatchName("name" + i);
+        batchDemo.setBatchValue("value" + i);
+        entityManager.persist(batchDemo);
+    }
+    entityManager.flush();
+    System.out.println("耗时：" + String.valueOf(System.currentTimeMillis() - starTime));
+}
+~~~
+
+### 多线程持久化  耗时：4412
+
+~~~java
+@Test
+@SneakyThrows
+void testInsert5() {
+    ExecutorService executorService = SpringUtil.getBean(AsyncConfig.ExecutorType.WORK_EXECUTOR);
+    long starTime = System.currentTimeMillis();
+    for (int i = 0; i < 10000; i++) {
+        final Integer index = i;
+        executorService.submit(()->{
+            batchDemoRepository.saveBatchDemo(index,"name"+index,"value"+index);
+        });
+    }
+    executorService.shutdown();
+    executorService.awaitTermination(30, TimeUnit.MINUTES);
+    System.out.println("耗时：" + String.valueOf(System.currentTimeMillis() - starTime));
+}
+~~~
+
+### 内存暂存表优化  耗时：6173
+
+~~~java
+@Transactional(rollbackFor = Exception.class)
+public void insert6() {
+    long starTime = System.currentTimeMillis();
+    Query createTable = entityManager.createNativeQuery("create temporary table batch_demo_temp\n" +
+                                                        "(\n" +
+                                                        "    id          int         not null comment 'id'\n" +
+                                                        "        primary key,\n" +
+                                                        "    batch_name  varchar(32) null,\n" +
+                                                        "    batch_value varchar(32) null\n" +
+                                                        ") engine = MEMORY\n" +
+                                                        "    comment '批量处理测试表暂存表';");
+    createTable.executeUpdate();
+    for (int i = 0; i < 10000; i++) {
+        entityManager.createNativeQuery("insert into batch_demo_temp(id, batch_name, batch_value) value ("+i+",'name"+i+"','value"+i+"')").executeUpdate();
+    }
+    entityManager.createNativeQuery("insert into batch_demo select * from batch_demo_temp;").executeUpdate();
+    System.out.println("耗时：" + String.valueOf(System.currentTimeMillis() - starTime));
+}
+~~~
+
+### 使用批处理模式  耗时：523
+
+- 配置hibernate的批处理大小
+
+~~~yaml
+spring:
+	jpa:
+        properties:
+              hibernate:
+                jdbc:
+                  batch_size: 500
+                order_inserts: true
+                order_updates: true
+~~~
+
+- 分批次提交
+
+~~~java
+@Transactional(rollbackFor = Exception.class)
+public void insert8() {
+    long starTime = System.currentTimeMillis();
+    for (int i = 0; i < 10000; i++) {
+        BatchDemo batchDemo = new BatchDemo();
+        batchDemo.setId(i);
+        batchDemo.setBatchName("name" + i);
+        batchDemo.setBatchValue("value" + i);
+        entityManager.persist(batchDemo);
+        if (i%500==0){
+            entityManager.flush();
+            entityManager.clear();
+        }
+    }
+    entityManager.flush();
+    System.out.println("耗时：" + String.valueOf(System.currentTimeMillis() - starTime));
+}
+~~~
+
+
+
+### 数据库批处理语句  耗时：386
+
+~~~java
+@Transactional(rollbackFor = Exception.class)
+public void insert7() {
+    long starTime = System.currentTimeMillis();
+    StringBuilder sb = new StringBuilder("insert into batch_demo(id, batch_name, batch_value) values ");
+    for (int i = 0; i < 10000; i++) {
+        sb.append(" ("+i+",'name"+i+"','value"+i+"') ,");
+    }
+    String sql = sb.substring(0, sb.length() - 1);
+    entityManager.createNativeQuery(sql).executeUpdate();
+    System.out.println("耗时：" + String.valueOf(System.currentTimeMillis() - starTime));
+}
+~~~
+
+
 
 ## 总结
 
@@ -753,6 +883,6 @@ void testInsert1(){
   > }
   > ~~~
   >
-  > 3、使用`AopContext.currentProxy()`获取当前类的代理类进行调用
+  > 3、使用`AopContext.currentProxy()`获取当前类的代理类进行调用，注意需要配置`@EnableAspectJAutoProxy(exposeProxy = true)`
 
 ### 多线程处理
