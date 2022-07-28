@@ -81,5 +81,6 @@ mybatis-plus:
 logging:
   level:
     org.springframework: warn
-    top.wecoding: debug
+    top.wecoding: error
+    top.wecoding.filter: debug
     druid.sql: debug

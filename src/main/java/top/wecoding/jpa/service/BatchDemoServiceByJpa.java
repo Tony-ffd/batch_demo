@@ -8,7 +8,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 import top.wecoding.jpa.pojo.BatchDemo;
 import top.wecoding.jpa.repository.BatchDemoRepository;
 
-import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
@@ -22,8 +21,7 @@ import javax.persistence.Query;
 public class BatchDemoServiceByJpa {
     private final BatchDemoRepository batchDemoRepository;
     private final EntityManager entityManager;
-    private final HibernateTemplate hibernateTemplate;
-    private final TransactionTemplate transactionTemplate;
+
 
     /**
      * 不查询，强制执行hql插入 (统一事务提交)
@@ -86,7 +84,7 @@ public class BatchDemoServiceByJpa {
         long starTime = System.currentTimeMillis();
         StringBuilder sb = new StringBuilder("insert into batch_demo(id, batch_name, batch_value) values ");
         for (int i = 0; i < 10000; i++) {
-            sb.append(" ("+i+",'name"+i+"','value"+i+"') ,");
+            sb.append(" (" + i + ",'name" + i + "','value" + i + "') ,");
         }
         String sql = sb.substring(0, sb.length() - 1);
         entityManager.createNativeQuery(sql).executeUpdate();
@@ -102,7 +100,7 @@ public class BatchDemoServiceByJpa {
             batchDemo.setBatchName("name" + i);
             batchDemo.setBatchValue("value" + i);
             entityManager.persist(batchDemo);
-            if (i%500==0){
+            if (i % 500 == 0) {
                 entityManager.flush();
                 entityManager.clear();
             }

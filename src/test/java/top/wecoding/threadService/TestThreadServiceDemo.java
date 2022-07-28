@@ -2,8 +2,10 @@ package top.wecoding.threadService;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import top.wecoding.mybatis.domain.BatchDemo;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 
 @SpringBootTest
 public class TestThreadServiceDemo {
@@ -20,6 +22,14 @@ public class TestThreadServiceDemo {
 
     @Test
     void insert1(){
-        batchInsertByThreadService.insert1();
+        ArrayList<BatchDemo> batchDemos = new ArrayList<>();
+        for (int i = 0; i < 10000; i++) {
+            BatchDemo batchDemo = new BatchDemo();
+            batchDemo.setId(i);
+            batchDemo.setBatchName("name"+i);
+            batchDemo.setBatchValue("value"+i);
+            batchDemos.add(batchDemo);
+        }
+        batchInsertByThreadService.insertBy2PC(batchDemos,5);
     }
 }
