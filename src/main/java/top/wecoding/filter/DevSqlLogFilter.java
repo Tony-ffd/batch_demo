@@ -80,9 +80,9 @@ public class DevSqlLogFilter extends FilterEventAdapter {
         startTime.remove();
         StringBuilder sb = new StringBuilder();
         sb.append("\n=============sql start=============\n");
-//        sb.append(SQLUtils.format(sql, DbType.mysql));
+        sb.append(SQLUtils.format(sql, DbType.mysql));
 //        sb.append(SQLUtils.format(sql, DbType.oracle));
-        sb.append(SQLUtils.format(sql, DbType.postgresql));
+//        sb.append(SQLUtils.format(sql, DbType.postgresql));
         sb.append("\n - > cost time:").append(extendTime).append(" ms");
         sb.append("\n=============sql end=============");
         log.debug(sb.toString());

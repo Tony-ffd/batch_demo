@@ -1,7 +1,7 @@
 # 数据源配置
 spring:
   profiles:
-    active: mongodb,postgresql
+    active: mongodb,mysql
 
   # jpa配置
   jpa:
