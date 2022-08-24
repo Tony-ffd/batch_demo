@@ -26,9 +26,9 @@ public class BatchDemoServiceImpl extends ServiceImpl<BatchDemoMapper, BatchDemo
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class})
     @Override
     public void saveBatchByThread(List<BatchDemo> batchDemoList, PlatformTransactionManager transactionManager, List<TransactionStatus> transactionStatuses) {
-        if (batchDemoList.get(0).getId().equals(0)) {
-            throw new RuntimeException("手动抛错");
-        }
+//        if (batchDemoList.get(0).getId().equals(0)) {
+//            throw new RuntimeException("手动抛错");
+//        }
         //创建一个新的事务状态
         DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition();
         transactionDefinition.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);

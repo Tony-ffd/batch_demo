@@ -12,13 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootTest
+@SuppressWarnings("all")
 public class TestMybatisPlusDemo {
     @Resource
     private BatchDemoService batchDemoService;
 
     /**
      * 普通添加1w条数据
-     * 耗时：27220
+     * 耗时：47641
      */
     @Test
     void testInsert0(){
@@ -35,7 +36,7 @@ public class TestMybatisPlusDemo {
 
     /**
      * 正常插入1w条数据手动控制事务
-     * 耗时：11418
+     * 耗时：6013
      */
     @Test
     @Transactional
@@ -53,7 +54,7 @@ public class TestMybatisPlusDemo {
 
     /**
      * 正常插入1w条批处理api
-     * 耗时：903
+     * 耗时：647
      */
     @Test
     void testInsert3(){

@@ -37,7 +37,7 @@
 
 ## 存储过程
 
-### 正常存储过程插入1w条      时间：14s484ms
+### 正常存储过程插入1w条      时间：20s920ms
 
 ~~~mysql
 create table batch_demo
@@ -69,7 +69,7 @@ delimiter ;
 call gen_data(10000);
 ~~~
 
-### 存储过程使用内存表优化添加1w条数据      时间： 98ms
+### 存储过程使用内存表优化添加1w条数据      时间： 162ms
 
 ~~~mysql
 create table batch_demo
@@ -111,7 +111,7 @@ delimiter ;
 call gen_data(10000);
 ~~~
 
-> 注意：暂存表使用会有大小限制，默认为16M，可以调节my.ini文件或者`transaction_alloc_block_size`全局常量改变限制。但是个人不建议这样操作，在批量存储前可以将数据分片再存。
+> 注意：暂存表使用会有大小限制，默认为16M，可以调节my.ini文件或者`max_heap_table_size`、`tmp_table_size`全局常量改变限制。但是个人不建议这样操作，在批量存储前可以将数据分片再存。
 
 ### 事务控制改为手动，并分片控制       时间：346ms
 
@@ -148,6 +148,8 @@ begin
     commit ;
 end $$
 delimiter ;
+
+call gen_data(10000);
 ~~~
 
 ## Jdbc
@@ -156,7 +158,7 @@ delimiter ;
 
 > jdbc有Statement和prepareStatement两种处理sql的方式，个人推荐使用prepareStatement
 
-### 正常循环执行  耗时：20507
+### 正常循环执行  耗时：38609
 
 ~~~java
 @Test
@@ -174,7 +176,7 @@ void testSimpleInsertData5(){
 }
 ~~~
 
-### 事务统一提交  耗时：5621
+### 事务统一提交  耗时：2793
 
 ~~~Java
 @Test
@@ -194,7 +196,7 @@ void testSimpleInsertData6(){
 }
 ~~~
 
-### 多线程持久化  耗时：4353
+### 多线程持久化  耗时：5162
 
 > 注意线程池和数据库连接池的使用限制约束，并需要考虑线程安全问题和事务控制问题
 
@@ -228,7 +230,7 @@ void testSimpleInsertData8() {
 }
 ~~~
 
-### 内存暂存表优化  耗时：5316
+### 内存暂存表优化  耗时：2726
 
 ~~~Java
 @Test
@@ -252,7 +254,7 @@ void testSimpleInsertData2() {
 }
 ~~~
 
-### 使用批处理模式  耗时：281
+### 使用批处理模式  耗时：403
 
 > 注意在jdbc连接配置url中添加`rewriteBatchedStatements=true`参数，否则可能不生效
 
@@ -273,7 +275,7 @@ void testSimpleInsertData7() {
 }
 ~~~
 
-### 数据库批处理语句  耗时：269
+### 数据库批处理语句  耗时：461
 
 ~~~java
 @Test
@@ -301,7 +303,7 @@ void testSimpleInsertData9() {
 
 代码位置：https://gitee.com/tonyffd/batch_demo/blob/master/src/test/java/top/wecoding/jdbcTemplate/TestJdbcTemplateDemo.java
 
-### 正常循环执行  耗时：20822
+### 正常循环执行  耗时：34740
 
 ~~~Java
 @Test
@@ -315,7 +317,7 @@ void testInsert0() {
 }
 ~~~
 
-### 事务统一提交  耗时：5774
+### 事务统一提交  耗时：3295
 
 - @Transactional事务注解
 
@@ -350,7 +352,7 @@ void testInsert2() {
 }
 ~~~
 
-### 多线程持久化  耗时：4370
+### 多线程持久化  耗时：5138
 
 ~~~java
 @Test
@@ -373,7 +375,7 @@ void testInsert8() {
 }
 ~~~
 
-### 内存暂存表优化  耗时：5359
+### 内存暂存表优化  耗时：3073
 
 ~~~java
 @Test
@@ -396,9 +398,9 @@ void testInsert3() {
 }
 ~~~
 
-### 使用批处理模式  耗时：343
+### 使用批处理模式  耗时：383
 
-- `jdbcTemplate.batchUpdate` 通用 耗时：343
+- `jdbcTemplate.batchUpdate` 通用 耗时：383
 
 ~~~java
 @Test
@@ -421,7 +423,7 @@ void testInsert5() {
 }
 ~~~
 
-- `BatchSqlUpdate`适合大批量数据处理，分批次处理  耗时：400
+- `BatchSqlUpdate`适合大批量数据处理，分批次处理  耗时：743
 
 ~~~java
 @Test
@@ -440,7 +442,7 @@ void testInsert6() {
 }
 ~~~
 
-### 数据库批处理语句  耗时: 281
+### 数据库批处理语句  耗时: 374
 
 ~~~java
 @Test
@@ -462,7 +464,7 @@ void testInsert7() {
 
 > 为简化文档，此处只演示调用代码，具体mapper中的sql操作下载演示demo查看
 
-### 正常循环执行  耗时：27097
+### 正常循环执行  耗时：37924
 
 ~~~java
 @Test
@@ -479,7 +481,7 @@ void testInsert0(){
 }
 ~~~
 
-### 事务统一提交  耗时：11328
+### 事务统一提交  耗时：6076
 
 ~~~java
 @Test
@@ -497,7 +499,7 @@ void testInsert1(){
 }
 ~~~
 
-### 多线程持久化  耗时：3503
+### 多线程持久化  耗时：3594
 
 > 此处的线程池是使用SpringBoot项目中配置好的线程池，可自己定义
 
@@ -522,7 +524,7 @@ void testInsert5(){
 }
 ~~~
 
-### 内存暂存表优化  耗时：10661
+### 内存暂存表优化  耗时：5054
 
 ~~~java
 @Test
@@ -544,7 +546,7 @@ void testInsert2(){
 }
 ~~~
 
-### 使用批处理模式  耗时：770
+### 使用批处理模式  耗时：443
 
 > 使用`sqlSessionFactory.openSession(ExecutorType.BATCH);`切换sqlSession模式,三种模式分别为
 >
@@ -572,7 +574,7 @@ void testInsert4(){
 }
 ~~~
 
-### 数据库批处理语句  耗时：903
+### 数据库批处理语句  耗时：886
 
 >对应的*Mapper.xml中使用foreach遍历拼接sql语句
 >
@@ -613,7 +615,7 @@ void testInsert3(){
 
 >  作为mybatis的拓展，拥有mybatis的所有功能，直接使用Mybatis的用法完全OK，当然也一些自己的api可以使用，该测试只使用了`ServiceImpl`中的方法，且有些方法于Mybatis一致，省去不写。
 
-### 使用批处理模式  耗时：903
+### 使用批处理模式  耗时：647
 
 ~~~java
 @Test
@@ -686,9 +688,9 @@ void testInsert2() {
 }
 ~~~
 
-### 事务统一提交  耗时：12363
+### 事务统一提交  耗时：4422
 
-- 使用`JpaRepository`中的`saveAll`方法  耗时：12363
+- 使用`JpaRepository`中的`saveAll`方法  耗时：4422
 
 ~~~java
 @Test
@@ -707,7 +709,7 @@ void testInsert1(){
 }
 ~~~
 
-- 强制性执行`insert`语句  耗时：6549
+- 强制性执行`insert`语句  耗时：4163
 
 ~~~java
 @Transactional(rollbackFor = Exception.class)
@@ -725,7 +727,7 @@ public void insert3() {
 }
 ~~~
 
-- 使用`entityManager.persist`直接插入  耗时: 6251
+- 使用`entityManager.persist`直接插入  耗时: 3489
 
 ~~~java
 @Transactional(rollbackFor = Exception.class)
@@ -743,7 +745,7 @@ public void insert4() {
 }
 ~~~
 
-### 多线程持久化  耗时：4412
+### 多线程持久化  耗时：4062
 
 ~~~java
 @Test
@@ -763,7 +765,7 @@ void testInsert5() {
 }
 ~~~
 
-### 内存暂存表优化  耗时：6173
+### 内存暂存表优化  耗时：3600
 
 ~~~java
 @Transactional(rollbackFor = Exception.class)
@@ -786,7 +788,7 @@ public void insert6() {
 }
 ~~~
 
-### 使用批处理模式  耗时：523
+### 使用批处理模式  耗时：576
 
 - 配置hibernate的批处理大小
 
@@ -796,7 +798,7 @@ spring:
         properties:
               hibernate:
                 jdbc:
-                  batch_size: 500
+                  batch_size: 100
                 order_inserts: true
                 order_updates: true
 ~~~
@@ -825,7 +827,7 @@ public void insert8() {
 
 
 
-### 数据库批处理语句  耗时：386
+### 数据库批处理语句  耗时：478
 
 ~~~java
 @Transactional(rollbackFor = Exception.class)
@@ -848,10 +850,19 @@ public void insert7() {
 上述的各种持久化框架中，均只使用了单个方向进行优化，在实际业务场景结合使用效果可能会更好。
 
 - 从这几个优化方向来说使用`数据库批处理语句`和持久化框架的`批处理模式`明显是效果最好的
-
 - `内存暂存表`一般只适用于插入场景，并且这种内存暂存表是一次数据库连接状态下存在的，随着数据库连接的中断，暂存表也会没了，所以我们可以使用内存暂存表和`多线程`结合使用，效果应该会更好
-
 - `事务统一提交`和`多线程持久化`是两个较为需要考虑使用场景的点，对于`事务统一提交`来说，一般情况下我们都会使用`Transactional`注解进行管理，或者有的系统中把业务层全部使用切面声明事务，所以一般情况下是统一提交的，但是这也正是长事务的来源之一，`多线程持久化`必然会遇到多线程事务控制，异常处理等问题，下面将展开详细说明
+
+| 库/框架                     | 正常循环执行 | 事务统一提交 | 多线程持久化 | 内存暂存表优化 | 使用批处理模式 | 数据库批处理语句 |
+| --------------------------- | ------------ | ------------ | ------------ | -------------- | -------------- | ---------------- |
+| MySQL 存储过程              | 20s820ms     | 346ms        |              | 461ms          |                |                  |
+| MySQL JDBC                  | 38s609ms     | 2s793ms      | 5s162ms      | 2s726ms        | 403ms          | 461ms            |
+| MySQL Spring JDBC           | 34s740ms     | 3s295ms      | 5s138ms      | 3s73ms         | 383ms          | 374ms            |
+| MySql Mybatis               | 37s924ms     | 6s76ms       | 3s594ms      | 5s54ms         | 443ms          | 886ms            |
+| MySQL Spring Data Jpa       | 44s241ms     | 4s422ms      | 4s62ms       | 3s600ms        | 576ms          | 478ms            |
+| Oracle Spring JDBC          | 6s230ms      | 5s760ms      | 2s27ms       | 5s869ms        | 60ms           | 13s978ms         |
+| PostgreSql Spring JDBC      | 8s701ms      | 3s119ms      | 1s585ms      | 3s85ms         | 1s752ms        | 249ms            |
+| MongoDB Spring Data MongoDB | 4s11ms       |              | 1s137ms      |                | 409ms          |                  |
 
 ### @Transactional的引发的问题
 

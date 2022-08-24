@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("all")
 public class BatchInsertByThreadService {
     private final BatchDemoService batchDemoService;
     private final PlatformTransactionManager transactionManager;

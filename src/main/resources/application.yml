@@ -1,46 +1,8 @@
 # 数据源配置
 spring:
-  datasource:
-    # 主库数据源
-    url: jdbc:mysql://localhost:3306/wecoding_test?rewriteBatchedStatements=true&autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&serverTimezone=UTC&nullCatalogMeansCurrent=true
-    username: root
-    password: 123456
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    druid:
-      # 初始连接数
-      initialSize: 10
-      # 最小连接池数量
-      minIdle: 10
-      # 最大连接池数量
-      maxActive: 20
-      # 配置获取连接等待超时的时间
-      maxWait: 60000
-      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
-      timeBetweenEvictionRunsMillis: 60000
-      # 配置一个连接在池中最小生存的时间，单位是毫秒
-      minEvictableIdleTimeMillis: 300000
-      # 配置一个连接在池中最大生存的时间，单位是毫秒
-      maxEvictableIdleTimeMillis: 900000
-      # 配置检测连接是否有效
-      validationQuery: SELECT 1 FROM DUAL
-      testWhileIdle: true
-      testOnBorrow: false
-      testOnReturn: false
-      poolPreparedStatements: true
-      maxPoolPreparedStatementPerConnectionSize: 20
-#      connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
-#      filter:
-#        stat:
-#          enabled: true
-#          #慢sql记录
-#          slow-sql-millis: 5000
-#          #合并sql
-#          merge-sql: true
-#        slf4j:
-#          enabled: true
-#          statement-executable-sql-log-enable: true
-#          statement-execute-after-log-enabled: true
-#      proxy-filters: devSqlLogFilter
+  profiles:
+    active: mongodb,postgresql
+
   # jpa配置
   jpa:
     generate-ddl: true
@@ -50,13 +12,9 @@ spring:
     properties:
       hibernate:
         jdbc:
-          batch_size: 500
+          batch_size: 100
         order_inserts: true
         order_updates: true
-
-
-
-
 
 
 # MyBatisPlus 配置

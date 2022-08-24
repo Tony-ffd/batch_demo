@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 
 @SpringBootTest
+@SuppressWarnings("all")
 public class TestThreadServiceDemo {
     @Resource
     private BatchInsertByThreadService batchInsertByThreadService;

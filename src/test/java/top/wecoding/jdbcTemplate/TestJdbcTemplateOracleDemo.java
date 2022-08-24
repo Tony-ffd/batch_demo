@@ -1,6 +1,5 @@
 package top.wecoding.jdbcTemplate;
 
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -8,15 +7,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.object.BatchSqlUpdate;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Resource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -24,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
 @SuppressWarnings("all")
-public class TestJdbcTemplateDemo {
+public class TestJdbcTemplateOracleDemo {
     @Resource
     private JdbcTemplate jdbcTemplate;
 
@@ -40,28 +36,13 @@ public class TestJdbcTemplateDemo {
 
     /**
      * 正常添加1w条数据
-     * 耗时：34740
+     * 耗时：6230
      */
     @Test
     void testInsert0() {
         long starTime = System.currentTimeMillis();
         for (int i = 0; i < 10000; i++) {
-            jdbcTemplate.update("insert into batch_demo(id, batch_name, batch_value) value (?,?,?)",
-                    new Object[]{i, "name" + i, "value" + i});
-        }
-        System.out.println("耗时：" + String.valueOf(System.currentTimeMillis() - starTime));
-    }
-
-    /**
-     * 添加1w条数据手动控制事务（声明式）
-     * 耗时：3295
-     */
-    @Test
-    @Transactional
-    void testInsert1() {
-        long starTime = System.currentTimeMillis();
-        for (int i = 0; i < 10000; i++) {
-            jdbcTemplate.update("insert into batch_demo(id, batch_name, batch_value) value (?,?,?)",
+            jdbcTemplate.update("insert into batch_demo(id, batch_name, batch_value) values (?,?,?)",
                     new Object[]{i, "name" + i, "value" + i});
         }
         System.out.println("耗时：" + String.valueOf(System.currentTimeMillis() - starTime));
@@ -69,7 +50,7 @@ public class TestJdbcTemplateDemo {
 
     /**
      * 添加1w条数据手动控制事务（编程式）
-     * 耗时：3213
+     * 耗时：5760
      */
     @Test
     void testInsert2() {
@@ -77,7 +58,7 @@ public class TestJdbcTemplateDemo {
         long starTime = System.currentTimeMillis();
         template.execute(status -> {
             for (int i = 0; i < 10000; i++) {
-                jdbcTemplate.update("insert into batch_demo(id, batch_name, batch_value) value (?,?,?)",
+                jdbcTemplate.update("insert into batch_demo(id, batch_name, batch_value) values (?,?,?)",
                         new Object[]{i, "name" + i, "value" + i});
             }
             return null;
@@ -87,50 +68,35 @@ public class TestJdbcTemplateDemo {
 
     /**
      * 添加1w条数据临时表优化
-     * 耗时：3073
+     * 耗时：5869
      */
     @Test
     void testInsert3() {
         long starTime = System.currentTimeMillis();
-        jdbcTemplate.execute("create temporary table batch_demo_temp\n" +
+        jdbcTemplate.execute("create global temporary table BATCH_DEMO_TEMP\n" +
                 "(\n" +
-                "    id          int         not null comment 'id'\n" +
+                "    ID          NUMBER(10) not null\n" +
                 "        primary key,\n" +
-                "    batch_name  varchar(32) null,\n" +
-                "    batch_value varchar(32) null\n" +
-                ") engine = MEMORY\n" +
-                "    comment '批量处理测试表暂存表';");
+                "    BATCH_NAME  VARCHAR2(255 char),\n" +
+                "    BATCH_VALUE VARCHAR2(255 char)\n" +
+                ")\n" +
+                "    on commit preserve rows");
         for (int i = 0; i < 10000; i++) {
-            jdbcTemplate.update("insert into batch_demo_temp(id, batch_name, batch_value) value (?,?,?)",
+            jdbcTemplate.update("insert into batch_demo_temp(id, batch_name, batch_value) values (?,?,?)",
                     new Object[]{i, "name" + i, "value" + i});
         }
-        jdbcTemplate.execute("insert into batch_demo select * from batch_demo_temp;");
-        System.out.println("耗时：" + String.valueOf(System.currentTimeMillis() - starTime));
-    }
-
-    /**
-     * 添加1w条数据批处理api优化
-     * 耗时：17720
-     */
-    @Test
-    void testInsert4() {
-        long starTime = System.currentTimeMillis();
-        List<String> batch_sql = new ArrayList<>(10000);
-        for (int i = 0; i < 10000; i++) {
-            batch_sql.add("insert into batch_demo(id, batch_name, batch_value) value ("+i+",'name"+i+"','value"+i+"')");
-        }
-        jdbcTemplate.batchUpdate(ArrayUtil.toArray(batch_sql,String.class));
+        jdbcTemplate.execute("insert into BATCH_DEMO select * from BATCH_DEMO_TEMP");
         System.out.println("耗时：" + String.valueOf(System.currentTimeMillis() - starTime));
     }
 
     /**
      * 添加1w条数据批处理api优化 （通用）
-     * 耗时：383
+     * 耗时：60
      */
     @Test
     void testInsert5() {
         long starTime = System.currentTimeMillis();
-        jdbcTemplate.batchUpdate("insert into batch_demo(id, batch_name, batch_value) value (?,?,?)", new BatchPreparedStatementSetter() {
+        jdbcTemplate.batchUpdate("insert into batch_demo(id, batch_name, batch_value) values (?,?,?)", new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
                 ps.setInt(1,i);
@@ -148,12 +114,12 @@ public class TestJdbcTemplateDemo {
 
     /**
      * 添加1w条数据批处理BatchSqlUpdate优化 （适合大批量数据处理，分批次处理）
-     * 耗时：743
+     * 耗时：88
      */
     @Test
     void testInsert6() {
         long starTime = System.currentTimeMillis();
-        BatchSqlUpdate batchSqlUpdate = new BatchSqlUpdate(jdbcTemplate.getDataSource(),"insert into batch_demo(id, batch_name, batch_value) value (?,?,?)");
+        BatchSqlUpdate batchSqlUpdate = new BatchSqlUpdate(jdbcTemplate.getDataSource(),"insert into batch_demo(id, batch_name, batch_value) values (?,?,?)");
         int[] types = {Types.INTEGER,Types.VARCHAR,Types.VARCHAR};
         batchSqlUpdate.setTypes(types);
         // 分批处理大小
@@ -166,25 +132,28 @@ public class TestJdbcTemplateDemo {
     }
 
     /**
-     * 添加1w条数据 insert into ** values(), ... , ()
-     * 适用于批量插入
-     * 耗时：374
+     * 添加1w条数据
+     *  insert into <tableName>[(<table_column1>,<table_column2>...)]
+     *  select [<column_value1>,<column_value2>...] from dual
+     *    [ union select [<column_value1>,<column_value2>...] from dual ]...
+     * sql拼接
+     * 耗时：13978
      */
     @Test
     void testInsert7() {
         long starTime = System.currentTimeMillis();
-        StringBuilder builder = new StringBuilder("insert into batch_demo(id, batch_name, batch_value) values ");
-        for (int i = 0; i < 10000; i++) {
-            builder.append(" ("+i+",'name"+i+"','value"+i+"'),");
+        StringBuilder builder = new StringBuilder("insert into BATCH_DEMO(ID, BATCH_NAME, BATCH_VALUE) ");
+        builder.append(" select 0 ,'name0','value0' from  dual");
+        for (int i = 1; i < 10000; i++) {
+           builder.append(" union select "+i+" , 'name"+i+"', 'valuw"+i+"' from dual");
         }
-        String sql = builder.substring(0, builder.length() - 1);
-        jdbcTemplate.update(sql);
+        jdbcTemplate.update(builder.toString());
         System.out.println("耗时：" + String.valueOf(System.currentTimeMillis() - starTime));
     }
 
     /**
      * 添加1w条数据多线程优化
-     * 耗时：5138
+     * 耗时：2027
      */
     @Test
     @SneakyThrows
@@ -197,7 +166,7 @@ public class TestJdbcTemplateDemo {
         for (int i = 0; i < 10000; i++) {
             final int index = i;
             poolExecutor.submit(()->{
-                jdbcTemplate.update("insert into batch_demo(id, batch_name, batch_value) value (?,?,?)",new Object[]{index,"name"+index,"value"+index});
+                jdbcTemplate.update("insert into batch_demo(id, batch_name, batch_value) values (?,?,?)",new Object[]{index,"name"+index,"value"+index});
             });
         }
         poolExecutor.shutdown();

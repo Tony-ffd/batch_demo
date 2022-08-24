@@ -1,10 +1,8 @@
 package top.wecoding.jpa.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
 import top.wecoding.jpa.pojo.BatchDemo;
 import top.wecoding.jpa.repository.BatchDemoRepository;
 
@@ -18,6 +16,7 @@ import javax.persistence.Query;
  */
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("all")
 public class BatchDemoServiceByJpa {
     private final BatchDemoRepository batchDemoRepository;
     private final EntityManager entityManager;

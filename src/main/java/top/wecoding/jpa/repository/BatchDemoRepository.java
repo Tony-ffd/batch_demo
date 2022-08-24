@@ -15,6 +15,7 @@ import top.wecoding.jpa.pojo.BatchDemo;
 * @Entity top.wecoding.jpa.entity.BatchDemo
 */
 @Repository
+@SuppressWarnings("all")
 public interface BatchDemoRepository extends JpaRepository<BatchDemo,Integer> {
 
     @Modifying

@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
+@SuppressWarnings("all")
 public class TestMybatisDemo {
     @Resource
     private SqlSessionFactory sqlSessionFactory;
@@ -27,7 +28,7 @@ public class TestMybatisDemo {
 
     /**
      * 正常插入1w条数据
-     * 耗时：27097
+     * 耗时：37924
      */
     @Test
     void testInsert0(){
@@ -44,7 +45,7 @@ public class TestMybatisDemo {
 
     /**
      * 正常插入1w条数据手动控制事务
-     * 耗时：11328
+     * 耗时：6076
      */
     @Test
     @Transactional
@@ -62,7 +63,7 @@ public class TestMybatisDemo {
 
     /**
      * 正常插入1w条临时表优化
-     * 耗时：10661
+     * 耗时：5054
      */
     @Test
     void testInsert2(){
@@ -84,7 +85,7 @@ public class TestMybatisDemo {
 
     /**
      * 正常插入1w条 insert into ** values(),...,()
-     * 耗时：903
+     * 耗时：886
      */
     @Test
     void testInsert3(){
@@ -103,7 +104,7 @@ public class TestMybatisDemo {
 
     /**
      * 使用批处理特性优化1w条数据
-     * 耗时：770
+     * 耗时：443
      */
     @Test
     void testInsert4(){
@@ -125,7 +126,7 @@ public class TestMybatisDemo {
 
     /**
      * 使用多线程优化1w条数据插入
-     * 耗时：3503
+     * 耗时：3594
      */
     @Test
     @SneakyThrows

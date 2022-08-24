@@ -14,7 +14,7 @@ import java.util.concurrent.*;
 
 @SpringBootTest
 @Slf4j
-@SuppressWarnings("uncheck")
+@SuppressWarnings("all")
 class TestJdbcDemo {
     @Resource
     private DataSource dataSource;
@@ -48,7 +48,7 @@ class TestJdbcDemo {
 
     /**
      * 普通插入1w条数据
-     * 耗时：20851
+     * 耗时：38609
      */
     @Test
     @SneakyThrows
@@ -63,7 +63,7 @@ class TestJdbcDemo {
 
     /**
      * 普通插入1w条数据并使用手动控制事务优化
-     * 耗时：5767
+     * 耗时：3243
      */
     @Test
     @SneakyThrows
@@ -80,7 +80,7 @@ class TestJdbcDemo {
 
     /**
      * 普通插入1w条数据并使用暂存表优化
-     * 耗时：5316
+     * 耗时：2726
      */
     @Test
     @SneakyThrows
@@ -105,7 +105,7 @@ class TestJdbcDemo {
     /**
      * 普通插入1w条数据并使用批处理优化
      * 注意在jdbc连接中添加rewriteBatchedStatements=true
-     * 耗时：15193
+     * 耗时：29108
      */
     @Test
     @SneakyThrows
@@ -124,7 +124,7 @@ class TestJdbcDemo {
      * (典型的错误写法，因为连接数只有一个)
      * 注意线程池和数据库连接池的使用限制约束，并需要考虑线程安全问题和事务控制问题
      * 正确实例请参考{@link TestJdbcDemo#testSimpleInsertData8()}
-     * 耗时：20688
+     * 耗时：32806
      */
     @Test
     @SneakyThrows
@@ -190,7 +190,7 @@ class TestJdbcDemo {
 
     /**
      * 使用预处理语句批处理方式优化
-     * 耗时：281
+     * 耗时：403
      */
     @Test
     @SneakyThrows
@@ -209,7 +209,7 @@ class TestJdbcDemo {
 
     /**
      * 使用预处理语句多线程优化
-     * 耗时：4353
+     * 耗时：5162
      */
     @Test
     @SneakyThrows
@@ -241,7 +241,7 @@ class TestJdbcDemo {
 
     /**
      * 使用数据库批处理语句优化
-     * 耗时：269
+     * 耗时：461
      */
     @Test
     @SneakyThrows
@@ -250,7 +250,7 @@ class TestJdbcDemo {
         StringBuilder sb = new StringBuilder("insert into batch_demo(id, batch_name, batch_value) values ");
         long starTime = System.currentTimeMillis();
         for (int i = 0; i < 10000; i++) {
-           sb.append(" ("+i+",'name"+i+"','value"+i+"') ,");
+            sb.append(" (" + i + ",'name" + i + "','value" + i + "') ,");
         }
         String sql = sb.substring(0, sb.length() - 1);
         statement.executeUpdate(sql);

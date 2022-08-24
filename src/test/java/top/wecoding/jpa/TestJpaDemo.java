@@ -20,6 +20,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
+@SuppressWarnings("all")
 public class TestJpaDemo {
     @Resource
     private BatchDemoRepository batchDemoRepository;
@@ -48,7 +49,7 @@ public class TestJpaDemo {
 
     /**
      * 正常插入1w条数据 saveAll （统一事务提交）
-     * 耗时：12363
+     * 耗时：4422
      */
     @Test
     void testInsert1(){
@@ -86,7 +87,7 @@ public class TestJpaDemo {
 
     /**
      * 不查询，强制执行hql插入 (统一事务提交)
-     * 耗时: 6549
+     * 耗时: 4163
      */
     @Test
     void testInsert3() {
@@ -95,7 +96,7 @@ public class TestJpaDemo {
 
     /**
      * 使用entityManager.persist方法（统一事务提交）
-     * 耗时：6251
+     * 耗时：3489
      */
     @Test
     void testInsert4() {
@@ -104,7 +105,7 @@ public class TestJpaDemo {
 
     /**
      * 多谢线程优化
-     * 耗时：4412
+     * 耗时：4062
      */
     @Test
     @SneakyThrows
@@ -124,7 +125,7 @@ public class TestJpaDemo {
 
     /**
      * 内存暂存表优化
-     * 耗时：6173
+     * 耗时：3600
      */
     @Test
     void testInsert6() {
@@ -133,7 +134,7 @@ public class TestJpaDemo {
 
     /**
      * 数据库批处理语句
-     * 耗时：386
+     * 耗时：478
      */
     @Test
     void testInsert7() {
@@ -142,7 +143,7 @@ public class TestJpaDemo {
 
     /**
      * 使用批处理模式
-     * 耗时：523
+     * 耗时：576
      */
     @Test
     void testInsert8() {

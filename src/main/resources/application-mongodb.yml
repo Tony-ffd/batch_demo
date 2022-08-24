@@ -1,0 +1,15 @@
+spring:
+  data:
+    mongodb:
+      #登录用户所在数据库
+#      authentication-database: wecoding_batch
+      #数据库的ip地址
+      host: 127.0.0.1
+      #端口
+      port: 27017
+      #用户账号
+#      username: wecoding
+      #密码
+#      password: 123456
+      #指定库
+      database: wecoding_batch

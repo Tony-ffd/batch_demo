@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class DevSqlLogFilter extends FilterEventAdapter {
 
-    private ThreadLocal<Long> startTime = new ThreadLocal<>();
+    private final ThreadLocal<Long> startTime = new ThreadLocal<>();
 
     @Override
     protected void statementExecuteUpdateBefore(StatementProxy statement, String sql) {
@@ -80,8 +80,10 @@ public class DevSqlLogFilter extends FilterEventAdapter {
         startTime.remove();
         StringBuilder sb = new StringBuilder();
         sb.append("\n=============sql start=============\n");
-        sb.append(SQLUtils.format(sql, DbType.mysql));
-        sb.append("\n - > cost time:"+extendTime +" ms");
+//        sb.append(SQLUtils.format(sql, DbType.mysql));
+//        sb.append(SQLUtils.format(sql, DbType.oracle));
+        sb.append(SQLUtils.format(sql, DbType.postgresql));
+        sb.append("\n - > cost time:").append(extendTime).append(" ms");
         sb.append("\n=============sql end=============");
         log.debug(sb.toString());
     }
